@@ -38,7 +38,9 @@ function! shfmt#Format()
         try | silent undojoin | catch | endtry
 
         " Replace current file with temp file, then reload buffer
+        let perms = getfperm(expand('%'))
         call rename(l:tmpname, expand('%'))
+        call setfperm(expand('%'),perms)
         silent edit!
         let &syntax = &syntax
     elseif g:sh_fmt_fail_silently == 0
