@@ -20,6 +20,8 @@ function! shfmt#Format()
 
     " Write current unsaved buffer to a temp file
     let l:tmpname = tempname()
+    let a:source = l:tmpname
+    let a:target = expand('%')
     call writefile(getline(1, '$'), l:tmpname)
 
     let fmt_command = "shfmt"
@@ -38,9 +40,19 @@ function! shfmt#Format()
         try | silent undojoin | catch | endtry
 
         " Replace current file with temp file, then reload buffer
-        let perms = getfperm(expand('%'))
-        call rename(l:tmpname, expand('%'))
-        call setfperm(expand('%'),perms)
+        if exists("*getfperm")
+            " save file permissions
+            let original_fperm = getfperm(a:target)
+        endif
+
+        call rename(a:source, a:target)
+
+        "let perms = getfperm(expand('%'))
+        " call setfperm(expand('%'),perms)
+        " restore file permissions
+        if exists("*setfperm") && original_fperm != ''
+            call setfperm(a:target , original_fperm)
+        endif
         silent edit!
         let &syntax = &syntax
     elseif g:sh_fmt_fail_silently == 0
