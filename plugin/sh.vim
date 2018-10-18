@@ -1,6 +1,8 @@
+let g:shfmt_autofmt_enabled=0
 function! Autoformat()
-    if get(g:, "sh_fmt_autosave", 1)
+    if g:shfmt_autofmt_enabled==0 && get(g:, "sh_fmt_autosave", 1)
         autocmd BufWritePre * call shfmt#Format()
+        let g:shfmt_autofmt_enabled=1
     endif
 endfunction
 
